@@ -134,6 +134,17 @@ public class Teleop extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
+            if (gamepad1.right_trigger > 0.1 || gamepad1.left_trigger > 0.1) {
+                leftFrontPower  *= 1;
+                rightFrontPower *= 1;
+                leftBackPower   *= 1;
+                rightBackPower  *= 1;
+            } else {
+                leftFrontPower  *= 0.75;
+                rightFrontPower *= 0.75;
+                leftBackPower   *= 0.75;
+                rightBackPower  *= 0.75;
+            }
 //      test code, uncomment when using
 
 
@@ -149,10 +160,15 @@ public class Teleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
 
+
+
+
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
         }
-    }}
+    }
+}
