@@ -134,16 +134,24 @@ public class Teleop extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            if (gamepad1.right_trigger > 0.1 || gamepad1.left_trigger > 0.1) {
+            double slowModeMultiplier = 0.33;
+            double mediumModeMultiplier = 0.66;
+
+            if (gamepad1.right_trigger > 0.9 || gamepad1.left_trigger > 0.9) {
                 leftFrontPower  *= 1;
                 rightFrontPower *= 1;
                 leftBackPower   *= 1;
                 rightBackPower  *= 1;
+            } else if(gamepad1.right_trigger > 0.1 || gamepad1.left_trigger > 0.1) {
+                leftFrontPower  *= mediumModeMultiplier;
+                rightFrontPower *= mediumModeMultiplier;
+                leftBackPower   *= mediumModeMultiplier;
+                rightBackPower  *= mediumModeMultiplier;
             } else {
-                leftFrontPower  *= 0.75;
-                rightFrontPower *= 0.75;
-                leftBackPower   *= 0.75;
-                rightBackPower  *= 0.75;
+                leftFrontPower  *= slowModeMultiplier;
+                rightFrontPower *= slowModeMultiplier;
+                leftBackPower   *= slowModeMultiplier;
+                rightBackPower  *= slowModeMultiplier;
             }
 //      test code, uncomment when using
 
