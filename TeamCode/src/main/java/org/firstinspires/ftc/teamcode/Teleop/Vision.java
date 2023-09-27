@@ -35,7 +35,6 @@ public class Vision extends LinearOpMode {
 
         while (opModeIsActive()) {
             if(tagProcessor.getDetections().size() > 0){
-
                 AprilTagDetection tag = tagProcessor.getDetections().get(0);
                 telemetry.addData("x", tag.ftcPose.x);
                 telemetry.addData("y", tag.ftcPose.y);
