@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /*
@@ -50,7 +49,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 @TeleOp(name="Basic: Linear OpMode", group="Linear OpMode")
-public class MoveMotorTest extends LinearOpMode {
+public class Slidetest extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -81,14 +80,18 @@ public class MoveMotorTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            double SlidePower;
-
-            double drive = -gamepad1.left_stick_y;
-            double turn  =  gamepad1.right_stick_x;
-            SlidePower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
 
-
+            double SlidePower = 0;
+            slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            when a is pressed, slide motor goes up
+            if (gamepad1.a) {
+                SlidePower = 1;
+            }
+//            when b is pressed, slide motor goes down
+            else if (gamepad1.b) {
+                SlidePower = -1;
+            }
             slideMotor.setPower(SlidePower);
 
             // Show the elapsed game time and wheel power.
