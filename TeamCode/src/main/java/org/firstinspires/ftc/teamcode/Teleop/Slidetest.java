@@ -53,8 +53,7 @@ public class Slidetest extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftDrive = null;
-    private DcMotor slideMotor = null;
+    private DcMotor linSlide = null;
 
     @Override
     public void runOpMode() {
@@ -65,13 +64,13 @@ public class Slidetest extends LinearOpMode {
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
 //        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        slideMotor = hardwareMap.get(DcMotor.class, "slide_motor");
+        linSlide = hardwareMap.get(DcMotor.class, "lin_slide");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
 //        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        slideMotor.setDirection(DcMotor.Direction.FORWARD);
+        linSlide.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -83,7 +82,7 @@ public class Slidetest extends LinearOpMode {
 
 
             double SlidePower = 0;
-            slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            linSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //            when a is pressed, slide motor goes up
             if (gamepad1.a) {
                 SlidePower = 1;
@@ -92,7 +91,13 @@ public class Slidetest extends LinearOpMode {
             else if (gamepad1.b) {
                 SlidePower = -1;
             }
-            slideMotor.setPower(SlidePower);
+            double currentSlidePower = linSlide.getPower();
+            double slidePowerIncrement = 0.1;
+            if (currentSlidePower < SlidePower) {
+                linSlide.setPower(currentSlidePower + slidePowerIncrement);
+            } else if (currentSlidePower > SlidePower) {
+                linSlide.setPower(currentSlidePower - slidePowerIncrement);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
