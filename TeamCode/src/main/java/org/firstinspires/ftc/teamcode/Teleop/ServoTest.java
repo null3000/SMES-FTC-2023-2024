@@ -84,19 +84,25 @@ public class ServoTest extends LinearOpMode {
         while (opModeIsActive()) {
             if(gamepad1.a){
                 Servo1.setPosition(0.5);
+                telemetry.addData("A has been pressed", "yippie");
             }
             if(gamepad1.b){
                 Servo1.setPosition(0);
+                telemetry.addData("B has been pressed", "yippie");
             }
             if(gamepad1.x){
                 Servo2.setPosition(0.5);
+                telemetry.addData("X has been pressed", "yippie");
             } else if(gamepad1.y){
-                Servo2.setPosition(1);
+                Servo2.setPosition(0);
+                telemetry.addData("Y has been pressed", "yippie");
             }
             if(gamepad1.dpad_up){
-                Servo3.setPosition(0.5);
+                Servo3.setPosition(0);
+                telemetry.addData("DpadUp has been pressed", "yippie");
             } else if(gamepad1.dpad_down){
-                Servo3.setPosition(1);
+                telemetry.addData("DpadDown has been pressed", "yippie");
+                Servo3.setPosition(.5);
             }
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());

@@ -61,7 +61,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @TeleOp(name="Move Robot", group="Linear OpMode")
 public class MoveRobot extends LinearOpMode {
     // Declare OpMode members for each of the 4 motors.
@@ -70,6 +70,8 @@ public class MoveRobot extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+
+    SampleMecanumDrive s;
 
     @Override
     public void runOpMode() {
