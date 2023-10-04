@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -61,7 +62,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 @TeleOp(name="Move Robot", group="Linear OpMode")
 public class MoveRobot extends LinearOpMode {
     // Declare OpMode members for each of the 4 motors.
@@ -71,7 +72,7 @@ public class MoveRobot extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-    SampleMecanumDrive s;
+    SampleMecanumDrive drive = null;
 
     @Override
     public void runOpMode() {
@@ -82,6 +83,7 @@ public class MoveRobot extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
+        drive = new SampleMecanumDrive(hardwareMap);
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
