@@ -91,13 +91,11 @@ public class Slidetest extends LinearOpMode {
             else if (gamepad1.b) {
                 SlidePower = -1;
             }
-            double currentSlidePower = linSlide.getPower();
-            double slidePowerIncrement = 0.1;
-            if (currentSlidePower < SlidePower) {
-                linSlide.setPower(currentSlidePower + slidePowerIncrement);
-            } else if (currentSlidePower > SlidePower) {
-                linSlide.setPower(currentSlidePower - slidePowerIncrement);
+            else {
+                SlidePower = gamepad1.right_stick_y;
             }
+
+            linSlide.setPower(SlidePower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
