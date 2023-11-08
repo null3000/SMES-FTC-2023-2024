@@ -218,19 +218,23 @@ public class Meet1_TeleOp extends LinearOpMode {
          *********************/
 
         int operationMode = 1;
-        // 1 Uses buttons
-        // 2 Uses stick
-        // not anymore
+//        opmode 1 = small gear
+//        opmode 2 = big gear
 
-        double bigGearPower  =  0;
-        double smallGearPower = 0;
+        if(gp.dpad_up) {
+            operationMode = 2;
+        }
+        if(gp.dpad_down) {
+            operationMode = 1;
+        }
+
+
+        double bigGearPower;
+        double smallGearPower;
 
         switch (operationMode) {
 
             case 1:
-                // POV Mode uses left stick to go forward, and right stick to turn.
-                // - This uses basic math to combine motions and is easier to drive straight.
-                bigGearPower = 0;
                 smallGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
 
                 // If neither motor has power, break. Otherwise, both float
@@ -248,7 +252,6 @@ public class Meet1_TeleOp extends LinearOpMode {
             case 2:
 
                 bigGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
-                smallGearPower = 0;
 
                 if (bigGearPower == 0) {
                     smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -259,7 +262,6 @@ public class Meet1_TeleOp extends LinearOpMode {
                 }
 
                 bigGear.setPower(bigGearPower);
-
                 break;
         }
 
