@@ -51,13 +51,13 @@ public class Teleop extends LinearOpMode {
     public void runOpMode() {
 
 
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "lf");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "lb");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "rb");
 
 
-        linSlide = hardwareMap.get(DcMotor.class, "lin_slide");
+//        linSlide = hardwareMap.get(DcMotor.class, "lin_slide");
 
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -65,7 +65,7 @@ public class Teleop extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        linSlide.setDirection(DcMotor.Direction.FORWARD);
+//        linSlide.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -77,7 +77,7 @@ public class Teleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             MoveRobot();
-            MoveSlide();
+//            MoveSlide();
 
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());

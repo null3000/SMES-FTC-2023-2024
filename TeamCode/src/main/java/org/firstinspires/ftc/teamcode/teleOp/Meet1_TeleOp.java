@@ -217,14 +217,11 @@ public class Meet1_TeleOp extends LinearOpMode {
          *
          *********************/
 
-        int operationMode = 1;
-//        opmode 1 = small gear
-//        opmode 2 = big gear
+        int operationMode = 2;
+//        opmode 1 = small gear used for hook
+//        opmode 2 = big gear used for everything
 
         if(gp.dpad_up) {
-            operationMode = 2;
-        }
-        if(gp.dpad_down) {
             operationMode = 1;
         }
 
@@ -249,8 +246,8 @@ public class Meet1_TeleOp extends LinearOpMode {
                 // Send calculated power to wheels
                 smallGear.setPower(smallGearPower);
                 break;
-            case 2:
 
+            case 2:
                 bigGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
 
                 if (bigGearPower == 0) {
@@ -264,6 +261,8 @@ public class Meet1_TeleOp extends LinearOpMode {
                 bigGear.setPower(bigGearPower);
                 break;
         }
+
+        telemetry.addData("Big Gear ticks", bigGear.getCurrentPosition());
 
     }
 
