@@ -55,8 +55,8 @@ public class ServoTest extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private Servo Servo1 = null;
-    private Servo Servo2 = null;
-    private Servo Servo3 = null;
+
+    private double position = 0.5;
 
     @Override
     public void runOpMode() {
@@ -68,8 +68,6 @@ public class ServoTest extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
 //        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
         Servo1 = hardwareMap.get(Servo.class, "servo1");
-        Servo2 = hardwareMap.get(Servo.class, "servo2");
-        Servo3 = hardwareMap.get(Servo.class, "servo3");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -82,30 +80,19 @@ public class ServoTest extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
             if(gamepad1.a){
-                Servo1.setPosition(0.5);
+                position += .05;
                 telemetry.addData("A has been pressed", "yippie");
             }
             if(gamepad1.b){
-                Servo1.setPosition(0);
+                position -= .05;
                 telemetry.addData("B has been pressed", "yippie");
             }
-            if(gamepad1.x){
-                Servo2.setPosition(0.5);
-                telemetry.addData("X has been pressed", "yippie");
-            } else if(gamepad1.y){
-                Servo2.setPosition(0);
-                telemetry.addData("Y has been pressed", "yippie");
-            }
-            if(gamepad1.dpad_up){
-                Servo3.setPosition(0);
-                telemetry.addData("DpadUp has been pressed", "yippie");
-            } else if(gamepad1.dpad_down){
-                telemetry.addData("DpadDown has been pressed", "yippie");
-                Servo3.setPosition(.5);
-            }
+            Servo1.setPosition(position);
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Servo Position", position);
 
             telemetry.update();
         }
