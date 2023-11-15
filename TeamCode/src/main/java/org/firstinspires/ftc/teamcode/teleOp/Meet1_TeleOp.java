@@ -77,7 +77,7 @@ public class Meet1_TeleOp extends LinearOpMode {
     private boolean lowerBoundHit = false;
     // MAX_TICKS is the value at the top (don't raise up more than this)
     // MIN_TICKS is the value at the bottom (don't wind up more than this)
-    final int MAX_TICKS = 3250;
+    final int MAX_TICKS = 3000;
     final int MIN_TICKS = 0;
 
     @Override
@@ -197,33 +197,27 @@ public class Meet1_TeleOp extends LinearOpMode {
 
     private void controlLinearSlide(Gamepad gp) {
 
-        /**********************
-         *  VERT SLIDE HARDWARE MAP
-         *
-         *      BUTTON B:
-         *  SLIDE UP
-         *
-         *      BUTTON A:
-         *  SLIDE DOWN
-         *
-         *      dpad UP:
-         *  EMERGENCY (ignore limits) UP
-         *
-         *      dpad DOWN:
-         *  EMERGENCY DOWN
-         *
-         *      dpad LEFT:
-         *  SET ENCODER TO 0
-         *
-         *********************/
 
         int operationMode = 2;
 //        opmode 1 = small gear used for hook
 //        opmode 2 = big gear used for everything
+//        op mode 3 = emergency up
+//        op mode 4 = emergency down
 
-        if(gp.dpad_up) {
+        if(gp.left_bumper) {
             operationMode = 1;
         }
+        if (gp.dpad_up){
+            operationMode = 3;
+        }
+        if (gp.dpad_down){
+            operationMode = 4;
+        }
+
+        if (gp.dpad_left){
+            bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+
 
 
         double bigGearPower;
@@ -244,6 +238,11 @@ public class Meet1_TeleOp extends LinearOpMode {
                 }
 
                 // Send calculated power to wheels
+
+              if (smallGear.getCurrentPosition() > MAX_TICKS || smallGear.getCurrentPosition() < MIN_TICKS) {
+                    break;
+                }
+
                 smallGear.setPower(smallGearPower);
                 break;
 
@@ -258,7 +257,19 @@ public class Meet1_TeleOp extends LinearOpMode {
                     bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
 
+                if (bigGear.getCurrentPosition() > MAX_TICKS || bigGear.getCurrentPosition() < MIN_TICKS) {
+                    break;
+                }
+
                 bigGear.setPower(bigGearPower);
+                break;
+
+            case 3:
+                bigGear.setPower(.5);
+                break;
+
+            case 4:
+                bigGear.setPower(-.5);
                 break;
         }
 
