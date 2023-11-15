@@ -241,7 +241,9 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // Send calculated power to wheels
 
-              if (smallGear.getCurrentPosition() > MAX_TICKS) {
+                int encodersTicks = bigGear.getCurrentPosition() * -1;
+
+              if (encodersTicks > MAX_TICKS || encodersTicks < MIN_TICKS) {
                     break;
                 }
 
@@ -259,23 +261,19 @@ public class Meet1_TeleOp extends LinearOpMode {
                     bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
 
-                if (bigGear.getCurrentPosition() > MAX_TICKS) {
+                encodersTicks = bigGear.getCurrentPosition() * -1;
+
+                if (encodersTicks > MAX_TICKS ||encodersTicks < MIN_TICKS) {
                     break;
                 }
 
                 bigGear.setPower(bigGearPower);
                 break;
-
-            case 3:
-                bigGear.setPower(.5);
-                break;
-
-            case 4:
-                bigGear.setPower(-.5);
-                break;
         }
 
-        telemetry.addData("Big Gear ticks", bigGear.getCurrentPosition());
+        telemetry.addData("Small Gear power", smallGear.getPower());
+        telemetry.addData("Big Gear power", bigGear.getPower());
+        telemetry.addData("Big Gear ticks", bigGear.getCurrentPosition() * -1);
 
     }
 
