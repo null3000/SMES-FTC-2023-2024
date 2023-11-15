@@ -70,6 +70,11 @@ public class Meet1_TeleOp extends LinearOpMode {
     private DcMotor smallGear = null;
     private DcMotor bigGear = null;
 
+    double bigGearPower;
+    double smallGearPower;
+
+    int operationMode = 2;
+
     private Servo claw = null;
 
     // Used for vert linear slide
@@ -200,35 +205,29 @@ public class Meet1_TeleOp extends LinearOpMode {
     private void controlLinearSlide(Gamepad gp) {
 
 
-        int operationMode = 2;
 //        opmode 1 = small gear used for hook
 //        opmode 2 = big gear used for everything
 //        op mode 3 = emergency up
 //        op mode 4 = emergency down
 
-        if(gp.left_bumper) {
+        if (gp.left_bumper) {
             operationMode = 1;
-        }
-        if (gp.dpad_up){
+        } else if (gp.dpad_up) {
             operationMode = 3;
-        }
-        if (gp.dpad_down){
+        } else if (gp.dpad_down) {
             operationMode = 4;
-        }
-
-        if (gp.dpad_left){
+        } else if (gp.dpad_left) {
             bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        } else {
+            operationMode = 2;
         }
 
-
-
-        double bigGearPower;
-        double smallGearPower;
 
         switch (operationMode) {
 
             case 1:
                 smallGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
+                bigGearPower = 0;
 
                 // If neither motor has power, break. Otherwise, both float
                 if (smallGearPower == 0) {
@@ -241,17 +240,17 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // Send calculated power to wheels
 
-                int encodersTicks = bigGear.getCurrentPosition() * -1;
-
-              if (encodersTicks > MAX_TICKS || encodersTicks < MIN_TICKS) {
+                if (smallGear.getCurrentPosition() > MAX_TICKS) {
                     break;
                 }
 
+                bigGear.setPower(bigGearPower);
                 smallGear.setPower(smallGearPower);
                 break;
 
             case 2:
                 bigGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
+                smallGearPower = 0;
 
                 if (bigGearPower == 0) {
                     smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -261,19 +260,28 @@ public class Meet1_TeleOp extends LinearOpMode {
                     bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
 
-                encodersTicks = bigGear.getCurrentPosition() * -1;
-
-                if (encodersTicks > MAX_TICKS ||encodersTicks < MIN_TICKS) {
+                if (bigGear.getCurrentPosition() > MAX_TICKS) {
                     break;
                 }
 
                 bigGear.setPower(bigGearPower);
+                smallGear.setPower(smallGearPower);
+                break;
+
+            case 3:
+                bigGear.setPower(.5);
+                break;
+
+            case 4:
+                bigGear.setPower(-.5);
                 break;
         }
 
-        telemetry.addData("Small Gear power", smallGear.getPower());
+        telemetry.addData("Big Gear ticks", bigGear.getCurrentPosition());
+        telemetry.addData("OpMode", operationMode);
         telemetry.addData("Big Gear power", bigGear.getPower());
-        telemetry.addData("Big Gear ticks", bigGear.getCurrentPosition() * -1);
+        telemetry.addData("Big Gear var power", bigGearPower);
+        telemetry.addData("Small Gear power", smallGear.getPower());
 
     }
 

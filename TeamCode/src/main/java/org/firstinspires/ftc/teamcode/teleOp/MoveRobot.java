@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.driveTools.SampleMecanumDrive;
 
@@ -62,26 +63,24 @@ import org.firstinspires.ftc.teamcode.driveTools.SampleMecanumDrive;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Move Robot bad", group="Linear OpMode")
+@TeleOp(name="Move Robot", group="Linear OpMode")
 public class MoveRobot extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
-//    private DcMotor leftFrontDrive = null;
-//    private DcMotor leftBackDrive = null;
-//    private DcMotor rightFrontDrive = null;
-//    private DcMotor rightBackDrive = null;
+    private DcMotor leftFrontDrive = null;
+    private DcMotor leftBackDrive = null;
+    private DcMotor rightFrontDrive = null;
+    private DcMotor rightBackDrive = null;
 
-    SampleMecanumDrive drive = null;
 
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-//        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front");
-//        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back");
-//        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
-//        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
-        drive = new SampleMecanumDrive(hardwareMap);
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "lf");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "lb");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "rb");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -93,10 +92,10 @@ public class MoveRobot extends LinearOpMode {
         // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
         // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
-//        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-//        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-//        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-//        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -163,7 +162,10 @@ public class MoveRobot extends LinearOpMode {
 
 
             // Send calculated power to wheels
-            drive.setMotorPowers(leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower);
+            leftBackDrive.setPower(leftBackPower);
+            rightFrontDrive.setPower(rightFrontPower);
+            rightBackDrive.setPower(rightBackPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
