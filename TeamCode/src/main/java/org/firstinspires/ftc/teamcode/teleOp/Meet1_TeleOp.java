@@ -193,6 +193,8 @@ public class Meet1_TeleOp extends LinearOpMode {
 
         smallGear.setDirection(DcMotor.Direction.FORWARD);
         bigGear.setDirection(DcMotor.Direction.REVERSE);
+
+        bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     private void controlLinearSlide(Gamepad gp) {
@@ -239,7 +241,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // Send calculated power to wheels
 
-              if (smallGear.getCurrentPosition() > MAX_TICKS || smallGear.getCurrentPosition() < MIN_TICKS) {
+              if (smallGear.getCurrentPosition() > MAX_TICKS) {
                     break;
                 }
 
@@ -257,7 +259,7 @@ public class Meet1_TeleOp extends LinearOpMode {
                     bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
 
-                if (bigGear.getCurrentPosition() > MAX_TICKS || bigGear.getCurrentPosition() < MIN_TICKS) {
+                if (bigGear.getCurrentPosition() > MAX_TICKS) {
                     break;
                 }
 
