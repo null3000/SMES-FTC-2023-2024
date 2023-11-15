@@ -199,7 +199,9 @@ public class Meet1_TeleOp extends LinearOpMode {
         smallGear.setDirection(DcMotor.Direction.FORWARD);
         bigGear.setDirection(DcMotor.Direction.REVERSE);
 
+        bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        smallGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // small doesn't use encoder this is for troubleshoot
     }
 
     private void controlLinearSlide(Gamepad gp) {
