@@ -239,11 +239,9 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // If neither motor has power, break. Otherwise, both float
                 if (smallGearPower == 0) {
-                    smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    slideMotorsBrakeMode();
                 } else {
-                    smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    slideMotorsFloatMode();
                 }
 
                 // Send calculated power to wheels
@@ -261,11 +259,9 @@ public class Meet1_TeleOp extends LinearOpMode {
                 smallGearPower = 0;
 
                 if (bigGearPower == 0) {
-                    smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    slideMotorsBrakeMode();
                 } else {
-                    smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    slideMotorsFloatMode();
                 }
 
                 if (bigGearPower > 0) {
@@ -333,6 +329,9 @@ public class Meet1_TeleOp extends LinearOpMode {
         telemetry.addData("Big Gear power", bigGear.getPower());
         telemetry.addData("Big Gear var power", bigGearPower);
         telemetry.addData("Small Gear power", smallGear.getPower());
+        telemetry.addData("Big Gear Mode", bigGear.getZeroPowerBehavior());
+        telemetry.addData("Small Gear Mode", smallGear.getZeroPowerBehavior());
+        telemetry.update();
 
     }
 
@@ -369,6 +368,17 @@ public class Meet1_TeleOp extends LinearOpMode {
 //        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void slideMotorsBrakeMode() {
+        bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        telemetry.addData("Motors", "Brake Mode");
+    }
+    public void slideMotorsFloatMode() {
+        bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        smallGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        telemetry.addData("Motors", "Float Mode");
     }
 
 }
