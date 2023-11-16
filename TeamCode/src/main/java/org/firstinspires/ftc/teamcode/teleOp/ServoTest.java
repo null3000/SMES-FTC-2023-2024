@@ -56,7 +56,7 @@ public class ServoTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Servo Servo1 = null;
 
-    private double position = 90;
+    private int position = 180;
 
     @Override
     public void runOpMode() {
@@ -82,11 +82,19 @@ public class ServoTest extends LinearOpMode {
         while (opModeIsActive()) {
 
             if(gamepad1.a){
-                position += 1;
+                position = 0;
                 telemetry.addData("A has been pressed", "yippie");
             }
             if(gamepad1.b){
-                position -= 1;
+                position = 90;
+                telemetry.addData("B has been pressed", "yippie");
+            }
+            if(gamepad1.x){
+                position = 180;
+                telemetry.addData("B has been pressed", "yippie");
+            }
+            if(gamepad1.y){
+                position = 270;
                 telemetry.addData("B has been pressed", "yippie");
             }
             Servo1.setPosition(position);
