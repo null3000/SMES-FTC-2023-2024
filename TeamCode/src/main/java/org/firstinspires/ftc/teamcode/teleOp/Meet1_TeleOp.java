@@ -200,8 +200,13 @@ public class Meet1_TeleOp extends LinearOpMode {
         bigGear.setDirection(DcMotor.Direction.REVERSE);
 
         bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // DO NOT DO THIS. IT BREAKS THE MOTOR. IF YOU NEED TO RESET THE ENCODER
         bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         smallGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // small doesn't use encoder this is for troubleshoot
+
+        bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        smallGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void controlLinearSlide(Gamepad gp) {
@@ -220,6 +225,7 @@ public class Meet1_TeleOp extends LinearOpMode {
             operationMode = 4;
         } else if (gp.dpad_left) {
             bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else {
             operationMode = 2;
         }
@@ -242,11 +248,11 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // Send calculated power to wheels
 
-                if (smallGear.getCurrentPosition() > MAX_TICKS) {
-                    break;
+                if (bigGear.getCurrentPosition() > MAX_TICKS || bigGear.getCurrentPosition() < MIN_TICKS) {
+                    bigGearPower=0;
                 }
 
-                bigGear.setPower(bigGearPower);
+                bigGear.setPower(0);
                 smallGear.setPower(smallGearPower);
                 break;
 
@@ -262,12 +268,55 @@ public class Meet1_TeleOp extends LinearOpMode {
                     bigGear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
 
-                if (bigGear.getCurrentPosition() > MAX_TICKS) {
-                    break;
+                if (bigGearPower > 0) {
+                    // Going up
+
+                    // If the linear slide has hit the top then the upperBoundHit becomes true
+                    // We can only move the linear slide up if upperBoundHit is false
+                    // upperBoundHit becomes false again when we have left the buffer threshold (100 ticks) below the top
+                    if (bigGear.getCurrentPosition() >= MAX_TICKS)
+                        upperBoundHit = true;
+                    else if (bigGear.getCurrentPosition() < MAX_TICKS - 100)
+                        upperBoundHit = false;
+
+                    // If the current position is valid, we move the motor upwards
+                    // The second conditional is to make sure the motor doesn't go clank clank at the top (basically a buffer)
+                    if ((bigGear.getCurrentPosition() < MAX_TICKS - 150) && (!upperBoundHit))
+                        bigGear.setPower(1);
+                    else if ((bigGear.getCurrentPosition() < MAX_TICKS && (!upperBoundHit)))
+                        bigGear.setPower(0.4);
+                    else
+                        bigGear.setPower(0.2);
+
+                } else if (bigGearPower < 0) {
+                    // Going down
+
+                    // If the linear slide has hit the top then the upperBoundHit becomes true
+                    // We can only move the linear slide up if upperBoundHit is false
+                    // upperBoundHit becomes false again when we have left the buffer threshold (100 ticks) below the top
+                    if (bigGear.getCurrentPosition() <= MIN_TICKS + 25)
+                        lowerBoundHit = true;
+                    else if (bigGear.getCurrentPosition() > MIN_TICKS)
+                        lowerBoundHit = false;
+
+
+                    // If the current position is valid, we move the motor upwards
+                    // The second conditional is to make sure the motor doesn't go clank clank at the top (basically a buffer)
+                    if ((bigGear.getCurrentPosition() > MIN_TICKS) && (!lowerBoundHit))
+
+                        // It needs to move slower compared to how close it is to the bottom
+                        if (bigGear.getCurrentPosition() > 750)
+                            bigGear.setPower(-1);
+                        else if (bigGear.getCurrentPosition() > 400)
+                            bigGear.setPower(-.4);
+                        else
+                            bigGear.setPower(-.2);
+                    else
+                        bigGear.setPower(0);
                 }
 
                 bigGear.setPower(bigGearPower);
-                smallGear.setPower(smallGearPower);
+                smallGear.setPower(0);
                 break;
 
             case 3:
