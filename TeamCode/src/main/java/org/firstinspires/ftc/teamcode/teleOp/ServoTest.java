@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 
 /*
@@ -56,7 +57,7 @@ public class ServoTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private Servo Servo1 = null;
 
-    private int position = 180;
+    private double position = 180;
 
     @Override
     public void runOpMode() {
@@ -81,20 +82,26 @@ public class ServoTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            //position += Range.clip(gamepad1.left_stick_x, -.1, .1);;
+
+//            open 0
+//            closed 1 : .1
+//            closed 2: .15
+
             if(gamepad1.a){
-                position = 0;
+                position = .75;
                 telemetry.addData("A has been pressed", "yippie");
             }
             if(gamepad1.b){
-                position = 90;
+                position = .85;
                 telemetry.addData("B has been pressed", "yippie");
             }
             if(gamepad1.x){
-                position = 180;
+                position = 1;
                 telemetry.addData("B has been pressed", "yippie");
             }
             if(gamepad1.y){
-                position = 270;
+                position = .5;
                 telemetry.addData("B has been pressed", "yippie");
             }
             Servo1.setPosition(position);
