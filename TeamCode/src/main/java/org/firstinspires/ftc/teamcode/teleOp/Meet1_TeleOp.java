@@ -75,8 +75,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
     int operationMode = 2;
 
-    private Servo claw = null;
-
+    private Servo Servo1 = null;
     // Used for vert linear slide
     private boolean upperBoundHit = false;
     private boolean lowerBoundHit = false;
@@ -103,8 +102,9 @@ public class Meet1_TeleOp extends LinearOpMode {
         while (opModeIsActive()) {
 
             driveCode(gamepad1);
-//            controlClaw(gamepad2);
+            controlClaw(gamepad2);
             controlLinearSlide(gamepad2);
+
 
         }
     }
@@ -175,7 +175,7 @@ public class Meet1_TeleOp extends LinearOpMode {
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
         drive = new SampleMecanumDrive(hardwareMap);
-        claw = hardwareMap.get(Servo.class, "claw");
+        Servo1 = hardwareMap.get(Servo.class, "servo1");
 
 
         // Setting the motor encoder position to zero
@@ -336,22 +336,14 @@ public class Meet1_TeleOp extends LinearOpMode {
     }
 
     public void controlClaw(Gamepad gp) {
+        if (gp.a) {
+            Servo1.setPosition(0);
+        } else if (gp.b) {
+            Servo1.setPosition(0.1);
+        } else if (gp.x){
+            Servo1.setPosition(0.15);
+        }
 
-        /**********************
-         * CLAW MAP
-         *
-         *      L Trigger:
-         * CLOSE CLAW
-         *
-         *      R Trigger:
-         * OPEN CLAW
-         *
-         *********************/
-
-        if (gp.b)
-            claw.setPosition(1);
-        else if (gp.x)
-            claw.setPosition(0.7);
     }
 
     public void setMotorsBreakMode() {
