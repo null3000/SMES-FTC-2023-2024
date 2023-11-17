@@ -76,6 +76,8 @@ public class Meet1_TeleOp extends LinearOpMode {
     int operationMode = 2;
 
     private Servo Servo1 = null;
+
+    private Servo Servo2 = null;
     // Used for vert linear slide
     private boolean upperBoundHit = false;
     private boolean lowerBoundHit = false;
@@ -176,6 +178,7 @@ public class Meet1_TeleOp extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
         drive = new SampleMecanumDrive(hardwareMap);
         Servo1 = hardwareMap.get(Servo.class, "servo1");
+        Servo2 = hardwareMap.get(Servo.class, "servo2");
 
 
         // Setting the motor encoder position to zero
@@ -342,6 +345,12 @@ public class Meet1_TeleOp extends LinearOpMode {
             Servo1.setPosition(0.1);
         } else if (gp.x){
             Servo1.setPosition(0.15);
+        }
+
+        if(gp.right_trigger > 0.25){
+            Servo2.setPosition(0.75);
+        } else if(gp.left_trigger > 0.25){
+            Servo2.setPosition(0.5);
         }
 
     }
