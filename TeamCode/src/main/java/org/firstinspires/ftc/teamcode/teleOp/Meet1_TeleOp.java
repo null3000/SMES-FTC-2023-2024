@@ -348,7 +348,9 @@ public class Meet1_TeleOp extends LinearOpMode {
         }
 
         if(gp.right_trigger > 0.25){
-            Servo2.setPosition(.75);
+            Servo2.setPosition(0.5);
+
+//            Servo2.setPosition(.75);
         } else if(gp.left_trigger > 0.25){
             Servo2.setPosition(1);
         }
