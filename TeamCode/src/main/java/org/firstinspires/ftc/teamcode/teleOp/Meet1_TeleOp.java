@@ -237,7 +237,7 @@ public class Meet1_TeleOp extends LinearOpMode {
         switch (operationMode) {
 
             case 1:
-                smallGearPower = Range.clip(-gamepad2.left_stick_y, -1.0, 1.0);
+                smallGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
                 bigGearPower = 0;
 
                 // If neither motor has power, break. Otherwise, both float
@@ -258,7 +258,7 @@ public class Meet1_TeleOp extends LinearOpMode {
                 break;
 
             case 2:
-                bigGearPower = Range.clip(-gamepad2.left_stick_y, -1.0, 1.0);
+                bigGearPower = Range.clip(gamepad2.left_stick_y, -1.0, 1.0);
                 smallGearPower = 0;
 
                 if (bigGearPower == 0) {
@@ -341,18 +341,17 @@ public class Meet1_TeleOp extends LinearOpMode {
     public void controlClaw(Gamepad gp) {
         if (gp.a) {
             Servo1.setPosition(0);
-        } else if (gp.b){
-            Servo1.setPosition(.175);
+        } else if (gp.b) {
+            Servo1.setPosition(0.19);
+        } else if (gp.x){
+            Servo1.setPosition(0.18);
         }
 
         if(gp.right_trigger > 0.25){
-            Servo2.setPosition(.5);
+            Servo2.setPosition(.55);
         } else if(gp.left_trigger > 0.25){
-            Servo2.setPosition(1);
-        }  else if(gp.dpad_up){
             Servo2.setPosition(.9);
         }
-
     }
 
     public void setMotorsBreakMode() {
