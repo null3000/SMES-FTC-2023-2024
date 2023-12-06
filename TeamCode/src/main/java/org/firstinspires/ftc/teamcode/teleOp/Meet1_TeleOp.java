@@ -249,11 +249,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
                 // Send calculated power to wheels
 
-                if (bigGear.getCurrentPosition() > MAX_TICKS || bigGear.getCurrentPosition() < MIN_TICKS) {
-                    bigGearPower=0;
-                }
 
-                bigGear.setPower(0);
                 smallGear.setPower(smallGearPower);
                 break;
 
