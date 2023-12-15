@@ -238,7 +238,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
             case 1:
                 smallGearPower = Range.clip(gamepad2.left_stick_x, -1.0, 1.0);
-                bigGearPower = 0;
+               // bigGearPower = 0;
 
                 // If neither motor has power, break. Otherwise, both float
                 if (smallGearPower == 0) {
@@ -251,6 +251,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
 
                 smallGear.setPower(smallGearPower);
+                bigGear.setPower(0); // Don't delet plz
                 break;
 
             case 2:
