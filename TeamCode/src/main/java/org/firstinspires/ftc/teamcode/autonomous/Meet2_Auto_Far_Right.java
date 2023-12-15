@@ -67,29 +67,23 @@ import java.util.ArrayList;
 // (line up robot touching back wall at an angle so that driving straight forward corresponds with tallest pole)
 // then, lift arm, drop off pre-load cone
 @Autonomous
-public class Meet3_Auto_RStrafe extends LinearOpMode {
-
-    // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-
-    // Left and Right Drive Motor Objects
-//    private DcMotor rightFrontDrive = null;
-//    private DcMotor rightBackDrive = null;
-//    private DcMotor leftFrontDrive = null;
-//    private DcMotor leftBackDrive = null;
+public class Meet2_Auto_Far_Right extends LinearOpMode {
 
     SampleMecanumDrive drive = null;
-    AutoData encoderData = null;
+    StandardTrackingWheelLocalizer encoders = null;
+    private ElapsedTime runtime = new ElapsedTime();
 
     //Slide and Claw Objects
     private DcMotor vertLinearSlide = null;
-    private Servo claw = null;
 
+    // Linear Slide
+    private DcMotor smallGear = null;
+    private DcMotor bigGear = null;
 
+    private Servo Servo1 = null;
+
+    private Servo Servo2 = null;
     private int autoPhase = 0;
-
-    //encoder
-    StandardTrackingWheelLocalizer encoders;
 
     //camera and CV
     OpenCvCamera camera;
@@ -135,40 +129,28 @@ public class Meet3_Auto_RStrafe extends LinearOpMode {
         // First Move
         //all in inches btw
 
-        double initialForward = 11.1;
-        double initialStrafe = 14.5;
+        double initialForward = 3;
+        double bigForward = 25;
+        double strafeRight1 = 50;
+        double strafeRight2 = 25;
 
-        Trajectory coneMovement = drive.trajectoryBuilder(new Pose2d())
+        Trajectory initPush = drive.trajectoryBuilder(new Pose2d())
                 .forward(initialForward)
                 .build();
 
-        Trajectory returnToSquare = drive.trajectoryBuilder(new Pose2d())
-                .back(initialForward)
+
+        Trajectory strafeToRight1 = drive.trajectoryBuilder(new Pose2d())
+                .strafeRight(strafeRight1)
                 .build();
 
-        Trajectory strafeToCenter = drive.trajectoryBuilder(new Pose2d())
-                .strafeLeft(initialStrafe + .5)
+        Trajectory strafeToRight2 = drive.trajectoryBuilder(new Pose2d())
+                .strafeRight(strafeRight2)
                 .build();
 
-        Trajectory strafeToPole = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(initialStrafe)
+        Trajectory bigFwd = drive.trajectoryBuilder(new Pose2d())
+                .forward(bigForward)
                 .build();
 
-//        Trajectory coneScanPos = drive.trajectoryBuilder(new Pose2d())
-//                .forward(0) //was 6
-//                .build();
-
-        Trajectory strafeToLeft = drive.trajectoryBuilder(new Pose2d())
-                .strafeLeft(25) //change this?
-                .build();
-
-        Trajectory middleSquare = drive.trajectoryBuilder(new Pose2d())
-                .forward(24.7)
-                .build();
-
-        Trajectory strafeToRight = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(25)
-                .build();
 
         waitForStart();
         runtime.reset();
@@ -183,85 +165,13 @@ public class Meet3_Auto_RStrafe extends LinearOpMode {
 
 
             if (autoPhase == 0) {
-                //strafe to pole
-                claw.setPosition(1);
+                sleep(20000);
+                drive.followTrajectory(initPush);
+                drive.followTrajectory(strafeToRight1);
+                drive.followTrajectory(bigFwd);
+                drive.followTrajectory(strafeToRight2);
 
-                drive.followTrajectory(strafeToPole);
-                // Starting by moving and raising the lift
-                vertLinearSlide.setPower(.5);
-                while (opModeIsActive() && Math.abs(vertLinearSlide.getCurrentPosition()) < (1300)) {
-//                    telemetry.addData("encoder: ", vertLinearSlide.getCurrentPosition());
-//                    telemetry.update();
-                    idle();
-                }
-
-
-                vertLinearSlide.setPower(0);
-//                    if (moveLift(-500)) {
-//                        sleep(3000);
-//                    }
-
-
-                //we start in front of pole
-                //so go forward a tiny bit
-                drive.followTrajectory(coneMovement);
-
-                //place cone on pole here
-
-                claw.setPosition(0.89);
-
-                sleep(1500);
-
-//                    claw.setPosition(1);
-
-                //delift arm here
-
-//                    vertLinearSlide.setPower(-1);
-
-//                    while (opModeIsActive() && Math.abs(vertLinearSlide.getCurrentPosition()) > 100) {
-//                        idle();
-//                    }
-
-//                    vertLinearSlide.setPower(0);
-
-                //goes to the parking signal
-                drive.followTrajectory(returnToSquare);
-                drive.followTrajectory(strafeToCenter);
-
-//                    drive.followTrajectory(coneScanPos);
-
-                //now detect cone and park
                 autoPhase = 1;
-
-                Pose2d poseEstimate = drive.getPoseEstimate();
-                telemetry.addData("finalX", poseEstimate.getX());
-                telemetry.addData("finalY", poseEstimate.getY());
-                telemetry.addData("finalHeading", poseEstimate.getHeading());
-                //telemetry.addLine("encoder dist travelled: ");
-            }
-            else if(autoPhase == 1) {
-                // Computer vision
-                int parkSpot = checkConeState();
-                if (parkSpot == 0) {
-                    //park in leftmost square
-                    telemetry.addLine("parking leftward");
-                    telemetry.update();
-                    drive.followTrajectory(middleSquare);
-                    drive.followTrajectory(strafeToLeft);
-                }
-                if (parkSpot == 1) {
-                    //park in middle square
-                    telemetry.addLine("parking middle");
-                    telemetry.update();
-                    drive.followTrajectory(middleSquare);
-                }
-                if (parkSpot == 2) {
-                    //park in rightmost square
-                    telemetry.addLine("parking right square");
-                    telemetry.update();
-                    drive.followTrajectory(middleSquare);
-                    drive.followTrajectory(strafeToRight);
-                }
             }
         }
     }
@@ -429,72 +339,18 @@ public class Meet3_Auto_RStrafe extends LinearOpMode {
     }
 
 
-    private void initializeHardware() {
-
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-//        leftFrontDrive = hardwareMap.get(DcMotor.class, "lf");
-//        leftBackDrive = hardwareMap.get(DcMotor.class, "lb");
-//        rightBackDrive = hardwareMap.get(DcMotor.class, "rb");
-//        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf");
-        drive = new SampleMecanumDrive(hardwareMap);
-        vertLinearSlide = hardwareMap.get(DcMotor.class, "vertSlide");
-//        horLinearSlide = hardwareMap.get(DcMotor.class, "horSlide");
-        claw = hardwareMap.get(Servo.class, "claw");
-
-        vertLinearSlide.setDirection(DcMotor.Direction.REVERSE);
-
-        // init slides
-        vertLinearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        vertLinearSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        vertLinearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-//        horLinearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        horLinearSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        horLinearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-        // Setting the motor encoder position to zero
-        drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        // Ensuring the motors get the instructions
-        sleep(100);
-
-        // This makes sure the motors are not using encoders (we don't use them)
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-//        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-//        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-//        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-//        rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        // Encoders
-        encoders = new StandardTrackingWheelLocalizer(hardwareMap);
-
-        drive.setMotorsBreakMode();
-    }
-
-    void tagToTelemetry(AprilTagDetection detection)
-    {
+    void tagToTelemetry(AprilTagDetection detection) {
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
+        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER));
+        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y * FEET_PER_METER));
+        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z * FEET_PER_METER));
 //        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
 //        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
 //        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
 
-}
+
+
 
 // Old stuff
 
@@ -572,3 +428,53 @@ public class Meet3_Auto_RStrafe extends LinearOpMode {
 //            vertLinearSlide.setPower(0.3);
 //
 //    }
+
+    public void initializeHardware() {
+
+        // Initialize the hardware variables. Note that the strings used here as parameters
+        // to 'get' must correspond to the names assigned during the robot configuration
+        // step (using the FTC Robot Controller app on the phone).
+        drive = new SampleMecanumDrive(hardwareMap);
+        Servo1 = hardwareMap.get(Servo.class, "servo1");
+        Servo2 = hardwareMap.get(Servo.class, "servo2");
+
+
+        // Setting the motor encoder position to zero
+        drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // Ensuring the motors get the instructions
+        sleep(100);
+
+        // This makes sure the motors are not using encoders (we don't use them)
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Encoders
+        encoders = new StandardTrackingWheelLocalizer(hardwareMap);
+
+        setMotorsBreakMode();
+
+        // Linear Slide
+        smallGear = hardwareMap.get(DcMotor.class, "smallGear");
+        bigGear = hardwareMap.get(DcMotor.class, "bigGear");
+
+        smallGear.setDirection(DcMotor.Direction.FORWARD);
+        bigGear.setDirection(DcMotor.Direction.REVERSE);
+
+        bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // DO NOT DO THIS. IT BREAKS THE MOTOR. IF YOU NEED TO RESET THE ENCODER
+        bigGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        smallGear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // small doesn't use encoder this is for troubleshoot
+
+        bigGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        smallGear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void setMotorsBreakMode() {
+        drive.setMotorsBreakMode();
+//        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+}
