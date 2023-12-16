@@ -337,7 +337,7 @@ public class Meet1_TeleOp extends LinearOpMode {
 
     public void controlClaw(Gamepad gp) {
         if (gp.a) {
-            Servo1.setPosition(0);
+            Servo1.setPosition(0); //
         } else if (gp.b) {
             Servo1.setPosition(0.19);
         } else if (gp.x){

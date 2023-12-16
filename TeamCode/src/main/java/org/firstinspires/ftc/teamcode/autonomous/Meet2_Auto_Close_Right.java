@@ -156,8 +156,15 @@ public class Meet2_Auto_Close_Right extends LinearOpMode {
 
             if (autoPhase == 0) {
 
+                Servo2.setPosition(.55);
+                Servo1.setPosition(0.19); // Init to close
+                sleep(2000);
+                Servo2.setPosition(.9);
+                sleep(2000);
                 drive.followTrajectory(initPush);
                 drive.followTrajectory(strafeToRight);
+
+
 
                 autoPhase = 1;
             }
