@@ -57,7 +57,7 @@ public class GoodAuto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "tpModel.tflite";
     private static final String[] LABELS = {
             "blueTp"
-    }
+    };
 
 
     // Linear Slide
@@ -69,9 +69,10 @@ public class GoodAuto extends LinearOpMode {
     private Servo Servo2 = null;
     private int autoPhase = 0;
 
-    private int leftSpikeThreshold;
-    private int rightSpikeThreshold;
-    private int centerSpikeThreshold;
+    private int leftSpikeThreshold = 150;
+    private int centerSpikeThreshold = 151;
+
+    private String scenario = "";
     @Override
     public void runOpMode() {
 
@@ -101,12 +102,40 @@ public class GoodAuto extends LinearOpMode {
                 .build();
 
 
+//        waits for camera to find object
+        sleep(3000);
+
+
+        List<Recognition> currentRecognitions = tfod.getRecognitions();
+//            get the recognition with the highest confidence
+        Recognition teamProp = null;
+        for (Recognition recognition : currentRecognitions) {
+            if (teamProp == null || recognition.getConfidence() > teamProp.getConfidence()) {
+                teamProp = recognition;
+            }
+        }
+        if (teamProp == null) {
+            scenario = "right";
+        }
+        double x = (teamProp.getLeft() + teamProp.getRight()) / 2 ;
+
+        if (x < leftSpikeThreshold) {
+            scenario = "left";
+        } else if (x > centerSpikeThreshold){
+            scenario = "center";
+        } else {
+            scenario = "right";
+        }
+        telemetry.addData("scenario", scenario);
+
+
         waitForStart();
         runtime.reset();
 
         while (opModeIsActive()) {
             telemetryTfod();
             telemetry.update();
+
 
 //            sleep to not take all of CPU
             sleep(20);
