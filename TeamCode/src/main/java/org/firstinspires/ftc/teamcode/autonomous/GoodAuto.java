@@ -86,21 +86,6 @@ public class GoodAuto extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        // First Move
-        // in inches
-
-        double initialForward = 10;
-        double strafeRight = 2;
-
-        Trajectory initPush = drive.trajectoryBuilder(new Pose2d())
-                .forward(initialForward)
-                .build();
-
-
-        Trajectory strafeToRight = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(strafeRight)
-                .build();
-
 
 //        waits for camera to find object
         sleep(3000);
@@ -127,6 +112,31 @@ public class GoodAuto extends LinearOpMode {
             }
         }
 
+        // First Move
+        // in inches
+
+
+
+        Trajectory initPush = drive.trajectoryBuilder(new Pose2d())
+                .forward(20)
+                .build();
+
+
+        Trajectory strafeToRight = drive.trajectoryBuilder(new Pose2d())
+                .strafeRight(6)
+                .build();
+
+        Trajectory strafeToLeft = drive.trajectoryBuilder(new Pose2d())
+                .strafeLeft(6)
+                .build();
+
+        Trajectory backUp = drive.trajectoryBuilder(new Pose2d())
+                .back(6)
+                .build();
+        Trajectory forward = drive.trajectoryBuilder(new Pose2d())
+                .forward(6)
+                .build();
+
 
         telemetry.addData("scenario", scenario);
         telemetry.update();
@@ -150,15 +160,28 @@ public class GoodAuto extends LinearOpMode {
              */
 
 
+//            auto phase 0 is to make sure clamp the pixel then move to the center between the 3 spike marks
             if (autoPhase == 0) {
                 Servo1.setPosition(0.19); // Init to close
                 sleep(2000);
                 Servo2.setPosition(.9);
                 sleep(2000);
                 drive.followTrajectory(initPush);
-                drive.followTrajectory(strafeToRight);
-
                 autoPhase = 1;
+            }
+
+//            auto phase 1 is to move to the correct spike mark based on the scenario
+
+            if (autoPhase == 1) {
+                sleep(2000);
+                if (scenario.equals("left")) {
+                    drive.followTrajectory(strafeToLeft);
+                } else if (scenario.equals("center")) {
+                    drive.followTrajectory(forward);
+                } else if (scenario.equals("right")) {
+                    drive.followTrajectory(strafeToRight);
+                }
+                autoPhase = 2;
             }
         }
     }
