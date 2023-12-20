@@ -118,20 +118,20 @@ public class GoodAuto extends LinearOpMode {
 
 
         Trajectory initPush = drive.trajectoryBuilder(new Pose2d())
-                .forward(20)
+                .forward(23)
                 .build();
 
 
         Trajectory strafeToRight = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(6)
+                .strafeRight(12)
                 .build();
 
         Trajectory strafeToLeft = drive.trajectoryBuilder(new Pose2d())
-                .strafeLeft(6)
+                .strafeLeft(14)
                 .build();
 
         Trajectory backUp = drive.trajectoryBuilder(new Pose2d())
-                .back(6)
+                .back(12)
                 .build();
         Trajectory forward = drive.trajectoryBuilder(new Pose2d())
                 .forward(6)
