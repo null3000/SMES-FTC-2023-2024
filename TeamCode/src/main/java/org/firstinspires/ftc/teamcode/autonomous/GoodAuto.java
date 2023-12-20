@@ -87,30 +87,7 @@ public class GoodAuto extends LinearOpMode {
         telemetry.update();
 
 
-//        waits for camera to find object
-        sleep(3000);
 
-
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-//            get the recognition with the highest confidence
-        Recognition teamProp = null;
-        for (Recognition recognition : currentRecognitions) {
-            if (teamProp == null || recognition.getConfidence() > teamProp.getConfidence()) {
-                teamProp = recognition;
-            }
-        }
-        if (teamProp == null) {
-            scenario = "right";
-        } else {
-            double x = (teamProp.getLeft() + teamProp.getRight()) / 2;
-            if (x < leftSpikeThreshold) {
-                scenario = "left";
-            } else if (x > centerSpikeThreshold){
-                scenario = "center";
-            } else {
-                scenario = "right";
-            }
-        }
 
         // First Move
         // in inches
@@ -131,27 +108,22 @@ public class GoodAuto extends LinearOpMode {
                 .build();
 
         Trajectory backUp = drive.trajectoryBuilder(new Pose2d())
-                .back(12)
+                .back(15)
                 .build();
         Trajectory forward = drive.trajectoryBuilder(new Pose2d())
                 .forward(6)
                 .build();
 
 
-        telemetry.addData("scenario", scenario);
-        telemetry.update();
 
 
         waitForStart();
         runtime.reset();
 
         while (opModeIsActive()) {
-            telemetryTfod();
             telemetry.update();
-
-
 //            sleep to not take all of CPU
-            sleep(20);
+            sleep(10);
 
             /*
             Our Autonomous is broken into phases.
@@ -159,21 +131,37 @@ public class GoodAuto extends LinearOpMode {
             Once one phase of instructions is complete, we will move to the next.
              */
 
-
 //            auto phase 0 is to make sure clamp the pixel then move to the center between the 3 spike marks
             if (autoPhase == 0) {
-                Servo1.setPosition(0.19); // Init to close
-                sleep(2000);
-                Servo2.setPosition(.9);
-                sleep(2000);
-                drive.followTrajectory(initPush);
+                sleep(1000);
+                List<Recognition> currentRecognitions = tfod.getRecognitions();
+                Recognition teamProp = null;
+                for (Recognition recognition : currentRecognitions) {
+                    if (teamProp == null || recognition.getConfidence() > teamProp.getConfidence()) {
+                        teamProp = recognition;
+                    }
+                }
+                if (teamProp == null) {
+                    scenario = "right";
+                } else {
+                    double x = (teamProp.getLeft() + teamProp.getRight()) / 2;
+                    if (x < leftSpikeThreshold) {
+                        scenario = "left";
+                    } else if (x > centerSpikeThreshold){
+                        scenario = "center";
+                    } else {
+                        scenario = "right";
+                    }
+                }
+                telemetry.addData("scenario", scenario);
+                telemetry.update();
                 autoPhase = 1;
             }
 
 //            auto phase 1 is to move to the correct spike mark based on the scenario
 
             if (autoPhase == 1) {
-                sleep(2000);
+                drive.followTrajectory(initPush);
                 if (scenario.equals("left")) {
                     drive.followTrajectory(strafeToLeft);
                 } else if (scenario.equals("center")) {
@@ -181,6 +169,9 @@ public class GoodAuto extends LinearOpMode {
                 } else if (scenario.equals("right")) {
                     drive.followTrajectory(strafeToRight);
                 }
+                drive.followTrajectory(backUp);
+                drive.turn(Math.toRadians(90));
+
                 autoPhase = 2;
             }
         }
