@@ -63,6 +63,11 @@ public class TPdetection extends LinearOpMode {
      */
     private VisionPortal visionPortal;
 
+    private static final String TFOD_MODEL_ASSET = "tpModel.tflite";
+    private static final String[] LABELS = {
+            "blueTp"
+    };
+
     @Override
     public void runOpMode() {
 
@@ -109,10 +114,10 @@ public class TPdetection extends LinearOpMode {
 
             // Use setModelAssetName() if the TF Model is built in as an asset.
             // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
-            //.setModelAssetName(TFOD_MODEL_ASSET)
+            .setModelAssetName(TFOD_MODEL_ASSET)
             //.setModelFileName(TFOD_MODEL_FILE)
 
-            //.setModelLabels(LABELS)
+            .setModelLabels(LABELS)
             //.setIsModelTensorFlow2(true)
             //.setIsModelQuantized(true)
             //.setModelInputSize(300)
