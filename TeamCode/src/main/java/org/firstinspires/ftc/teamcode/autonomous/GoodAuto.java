@@ -116,17 +116,20 @@ public class GoodAuto extends LinearOpMode {
         }
         if (teamProp == null) {
             scenario = "right";
-        }
-        double x = (teamProp.getLeft() + teamProp.getRight()) / 2 ;
-
-        if (x < leftSpikeThreshold) {
-            scenario = "left";
-        } else if (x > centerSpikeThreshold){
-            scenario = "center";
         } else {
-            scenario = "right";
+            double x = (teamProp.getLeft() + teamProp.getRight()) / 2;
+            if (x < leftSpikeThreshold) {
+                scenario = "left";
+            } else if (x > centerSpikeThreshold){
+                scenario = "center";
+            } else {
+                scenario = "right";
+            }
         }
+
+
         telemetry.addData("scenario", scenario);
+        telemetry.update();
 
 
         waitForStart();
