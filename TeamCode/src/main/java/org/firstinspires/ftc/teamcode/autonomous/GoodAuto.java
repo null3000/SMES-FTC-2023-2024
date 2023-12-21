@@ -17,8 +17,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.driveTools.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.driveTools.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
-import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -73,12 +74,29 @@ public class GoodAuto extends LinearOpMode {
     private int centerSpikeThreshold = 151;
 
     private String scenario = "";
+    private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
+    private AprilTagDetection desiredTag = null;
+
+    private int DESIRED_TAG_ID = 1;
+
+    final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+
+    final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_TURN  = 0.3;
+
+    final double DESIRED_DISTANCE = 8.0;  //  Desired approach distance from the target object (inches)
+
+
     @Override
     public void runOpMode() {
-
-
-
+        double  move           = 0;        // Desired forward power/speed (-1 to +1)
+        double  strafe          = 0;        // Desired strafe power/speed (-1 to +1)
+        double  turn            = 0;
         // Method to assign and initialize the hardware
+
         initializeHardware();
         initTfod();
         drive.setMotorsBreakMode();
@@ -87,11 +105,8 @@ public class GoodAuto extends LinearOpMode {
         telemetry.update();
 
 
-
-
         // First Move
         // in inches
-
 
 
         Trajectory initPush = drive.trajectoryBuilder(new Pose2d())
@@ -115,12 +130,12 @@ public class GoodAuto extends LinearOpMode {
                 .build();
 
 
-
-
         waitForStart();
         runtime.reset();
 
         while (opModeIsActive()) {
+            boolean targetFound = false;
+            desiredTag = null;
             telemetry.update();
 //            sleep to not take all of CPU
             sleep(10);
@@ -147,7 +162,7 @@ public class GoodAuto extends LinearOpMode {
                     double x = (teamProp.getLeft() + teamProp.getRight()) / 2;
                     if (x < leftSpikeThreshold) {
                         scenario = "left";
-                    } else if (x > centerSpikeThreshold){
+                    } else if (x > centerSpikeThreshold) {
                         scenario = "center";
                     } else {
                         scenario = "right";
@@ -164,15 +179,51 @@ public class GoodAuto extends LinearOpMode {
                 drive.followTrajectory(initPush);
                 if (scenario.equals("left")) {
                     drive.followTrajectory(strafeToLeft);
+                    drive.followTrajectory(backUp);
                 } else if (scenario.equals("center")) {
                     drive.followTrajectory(forward);
+                    drive.followTrajectory(backUp);
                 } else if (scenario.equals("right")) {
                     drive.followTrajectory(strafeToRight);
+                    drive.followTrajectory(backUp);
+                    drive.followTrajectory(strafeToLeft);
                 }
-                drive.followTrajectory(backUp);
-                drive.turn(Math.toRadians(90));
 
+                drive.turn(Math.toRadians(90));
+                drive.followTrajectory(forward);
+                drive.followTrajectory(forward);
                 autoPhase = 2;
+            }
+            if (autoPhase == 2) {
+                List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+                for (AprilTagDetection detection : currentDetections) {
+                    if ((detection.metadata != null) &&
+                            ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID))) {
+                        targetFound = true;
+                        desiredTag = detection;
+                        break;
+                    } else {
+                        telemetry.addData("Unknown Target", "Tag ID %d is not in TagLibrary\n", detection.id);
+                    }
+                }
+
+                if(targetFound){
+                    double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+                    double  headingError    = desiredTag.ftcPose.bearing;
+                    double  yawError        = desiredTag.ftcPose.yaw;
+
+                    // Use the speed and turn "gains" to calculate how we want the robot to move.
+                    move  = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
+                    turn   = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN) ;
+                    strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+
+                    telemetry.update();
+
+                    // Apply desired axes motions to the drivetrain.
+                    moveRobot(move, strafe, turn);
+
+                    telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", move, strafe, turn);
+                }
             }
         }
     }
@@ -230,6 +281,7 @@ public class GoodAuto extends LinearOpMode {
     private void initTfod() {
 
         // Create the TensorFlow processor by using a builder.
+        aprilTag = new AprilTagProcessor.Builder().build();
         tfod = new TfodProcessor.Builder()
 
                 // Use setModelAssetName() if the TF Model is built in as an asset.
@@ -271,6 +323,8 @@ public class GoodAuto extends LinearOpMode {
 
         // Set and enable the processor.
         builder.addProcessor(tfod);
+        builder.addProcessor(aprilTag);
+
 
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
@@ -282,22 +336,27 @@ public class GoodAuto extends LinearOpMode {
         //visionPortal.setProcessorEnabled(tfod, true);
 
     }   // end method initTfod()
+    public void moveRobot(double x, double y, double yaw) {
+        // Calculate wheel powers.
+        double leftFrontPower    =  x -y -yaw;
+        double rightFrontPower   =  x +y +yaw;
+        double leftBackPower     =  x +y -yaw;
+        double rightBackPower    =  x -y +yaw;
 
-    private void telemetryTfod() {
+        // Normalize wheel powers to be less than 1.0
+        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+        max = Math.max(max, Math.abs(leftBackPower));
+        max = Math.max(max, Math.abs(rightBackPower));
 
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
+        if (max > 1.0) {
+            leftFrontPower /= max;
+            rightFrontPower /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
+        }
 
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
-
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-        }   // end for() loop
+        // Send powers to the wheels.
+        drive.setMotorPowers(leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 
     }
 
