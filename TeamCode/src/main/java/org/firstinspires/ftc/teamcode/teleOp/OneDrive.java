@@ -217,9 +217,9 @@ public class OneDrive extends LinearOpMode {
     private void controlLinearSlide(Gamepad gp) {
 
         if(gp.dpad_up){
-            bigGearPower = 0.5;
+            bigGearPower = -0.75;
         } else if(gp.dpad_down){
-            bigGearPower = -0.5;
+            bigGearPower = 0.75;
         } else {
             bigGearPower = 0;
         }
@@ -233,14 +233,12 @@ public class OneDrive extends LinearOpMode {
             Servo1.setPosition(0); //
         } else if (gp.b) {
             Servo1.setPosition(0.19);
-        } else if (gp.x){
-            Servo1.setPosition(0.18);
         }
 
         if(gp.right_trigger > 0.25){
-            Servo2.setPosition(.55);
-        } else if(gp.left_trigger > 0.25){
             Servo2.setPosition(.9);
+        } else if(gp.left_trigger > 0.25){
+            Servo2.setPosition(.55);
         }
     }
 

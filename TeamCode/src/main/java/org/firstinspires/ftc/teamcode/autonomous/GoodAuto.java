@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.autonomous.AutoData.encoderInchesToTicks;
 
+import android.util.Size;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -27,22 +29,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- * <p>
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
- * <p>
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
-//drive straight forward
-// (line up robot touching back wall at an angle so that driving straight forward corresponds with tallest pole)
-// then, lift arm, drop off pre-load cone
 @Autonomous
 public class GoodAuto extends LinearOpMode {
 
@@ -77,15 +64,15 @@ public class GoodAuto extends LinearOpMode {
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;
 
-    private int DESIRED_TAG_ID = 1;
+    private int DESIRED_TAG_ID = 0;
 
     final double SPEED_GAIN  =  0.02  ;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
     final double STRAFE_GAIN =  0.015 ;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
     final double TURN_GAIN   =  0.01  ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
-    final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_TURN  = 0.3;
+    final double MAX_AUTO_SPEED = 1;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE= 1;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_TURN  = 0.7;
 
     final double DESIRED_DISTANCE = 8.0;  //  Desired approach distance from the target object (inches)
 
@@ -115,7 +102,7 @@ public class GoodAuto extends LinearOpMode {
 
 
         Trajectory strafeToRight = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(12)
+                .strafeRight(14)
                 .build();
 
         Trajectory strafeToLeft = drive.trajectoryBuilder(new Pose2d())
@@ -123,10 +110,13 @@ public class GoodAuto extends LinearOpMode {
                 .build();
 
         Trajectory backUp = drive.trajectoryBuilder(new Pose2d())
-                .back(15)
+                .back(6)
                 .build();
         Trajectory forward = drive.trajectoryBuilder(new Pose2d())
                 .forward(6)
+                .build();
+        Trajectory smallForward = drive.trajectoryBuilder(new Pose2d())
+                .forward(3.5)
                 .build();
 
 
@@ -158,17 +148,22 @@ public class GoodAuto extends LinearOpMode {
                 }
                 if (teamProp == null) {
                     scenario = "right";
+                    DESIRED_TAG_ID = 3;
                 } else {
                     double x = (teamProp.getLeft() + teamProp.getRight()) / 2;
                     if (x < leftSpikeThreshold) {
                         scenario = "left";
+                        DESIRED_TAG_ID = 1;
                     } else if (x > centerSpikeThreshold) {
                         scenario = "center";
+                        DESIRED_TAG_ID = 2;
                     } else {
                         scenario = "right";
+                        DESIRED_TAG_ID = 3;
                     }
                 }
                 telemetry.addData("scenario", scenario);
+                telemetry.addData("looking for tag: ", DESIRED_TAG_ID);
                 telemetry.update();
                 autoPhase = 1;
             }
@@ -176,22 +171,30 @@ public class GoodAuto extends LinearOpMode {
 //            auto phase 1 is to move to the correct spike mark based on the scenario
 
             if (autoPhase == 1) {
+                sleep(500);
+                Servo1.setPosition(.19);
+                sleep(1000);
+                Servo2.setPosition(.9);
+                sleep(500);
                 drive.followTrajectory(initPush);
                 if (scenario.equals("left")) {
-                    drive.followTrajectory(strafeToLeft);
-                    drive.followTrajectory(backUp);
-                } else if (scenario.equals("center")) {
+                    drive.turn(Math.toRadians(90));
                     drive.followTrajectory(forward);
                     drive.followTrajectory(backUp);
-                } else if (scenario.equals("right")) {
-                    drive.followTrajectory(strafeToRight);
-                    drive.followTrajectory(backUp);
                     drive.followTrajectory(strafeToLeft);
+                    drive.followTrajectory(forward);
+                } else if (scenario.equals("center")) {
+                    drive.followTrajectory(smallForward);
+                    drive.followTrajectory(backUp);
+                    drive.turn(Math.toRadians(90));
+                    drive.followTrajectory(initPush);
+                } else if (scenario.equals("right")) {
+                    drive.turn(Math.toRadians(-90));
+                    drive.followTrajectory(smallForward);
+                    drive.followTrajectory(backUp);
+                    drive.turn(Math.toRadians(180));
+                    drive.followTrajectory(forward);
                 }
-
-                drive.turn(Math.toRadians(90));
-                drive.followTrajectory(forward);
-                drive.followTrajectory(forward);
                 autoPhase = 2;
             }
             if (autoPhase == 2) {
@@ -216,14 +219,18 @@ public class GoodAuto extends LinearOpMode {
                     move  = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
                     turn   = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN) ;
                     strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-
-                    telemetry.update();
-
-                    // Apply desired axes motions to the drivetrain.
-                    moveRobot(move, strafe, turn);
-
                     telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", move, strafe, turn);
+                } else{
+                    move = 0;
+                    turn = 0;
+                    strafe =0;
                 }
+
+                moveRobot(move, strafe, turn);
+                sleep(10);
+
+
+                telemetry.update();
             }
         }
     }
@@ -308,7 +315,7 @@ public class GoodAuto extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        //builder.setCameraResolution(new Size(640, 480));
+//        builder.setCameraResolution(new Size(864, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableCameraMonitoring(true);
@@ -334,7 +341,7 @@ public class GoodAuto extends LinearOpMode {
 
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true);
-
+//        tfod.setZoom(1.25);
     }   // end method initTfod()
     public void moveRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
